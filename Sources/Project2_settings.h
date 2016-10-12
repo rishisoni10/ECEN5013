@@ -14,10 +14,22 @@
 #define PR_BUFFERECHO_OFF 0
 #define PR_BUFFERECHO_ON  1
 
-#define PR_BUFFERECHO PR_BUFFERECHO_ON
+#define PR_BUFFERECHO PR_BUFFERECHO_OFF
 
 #define PR_LEDCONTROL_OFF 0
 #define PR_LEDCONTROL_ON  1
 #define PR_LEDCONTROL PR_LEDCONTROL_OFF
+
+#define PR_LOGGER_OFF 0
+#define PR_LOGGER_ON  1
+#define PR_LOGGER PR_LOGGER_OFF
+
+
+
+  #define DEBUG 			// uncomment this to enable log function (FRDM/BBB)
+  #define FRDM	 			// uncomment this for serial debug (FRDM)
+ // #define BBB   			// uncomment this for printf debug (BBB)
+
+
 
 #endif /* SOURCES_PROJECT2_SETTINGS_H_ */

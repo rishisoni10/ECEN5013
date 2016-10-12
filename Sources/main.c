@@ -6,7 +6,9 @@ typedef void(*UserAction)(void);
 static int i = 0;
 uint8_t TransferState = 0,CmdProcessingDone = 0;
 uint8_t LEDControlRequested = 0;
+uint8_t LogRequested =0;
 uint8_t ECOReqested = 0;
+uint8_t MENUprinted = 0;
 UserAction TaskToPerform[6];
 uint8_t testdone = 0;
 
@@ -26,11 +28,15 @@ void Task_LED(void)
 
 void Task_LOG(void)
 {
+	if(!LogRequested){
 	LOG_0("\r\nTesting123,Serial print test,no params",40);
 	LOG_1("\r\nThis is an integer number:",28,200,sizeof(200));
 	LOG_1("\r\nThis is an integer number:",28,4096,sizeof(4096));
 	LOG_1("\r\nThis is an integer number:",28,123456,sizeof(123456));
 	LOG_2("\r\nThis is a floating number:",29,1543.321);
+
+	LogRequested = 1;
+	}
 }
 
 void Task_TST(void)
@@ -38,8 +44,8 @@ void Task_TST(void)
 	 cirbuffer_t testbuff;
 	 uint8_t test[5];
 	 uint8_t result,len=5,data;
- //module test circular buffer
-	 if(testdone == 0){
+     //module test circular buffer
+	  if(testdone == 0){
 		 LOG_4("\r\nRunning Unit Tests for circular buffer\r\n");
 		 //create a test circular buffer and initialize it:
 
@@ -186,9 +192,23 @@ void Task_PRO(void)
 	avg_time = sum2/(i*10);
 }
 
-void Task_NONE(void)
+void Task_Ask(void)
 {
-	// nothing to do
+	if(!MENUprinted){
+	//reset all control flags
+	 LEDControlRequested = 0;
+	 LogRequested =0;
+	 ECOReqested = 0;
+
+		// ask user for a command
+	    LOG_4("\r\nChoose an operation to perform:\r\n");
+	    LOG_4("\r\nPress C to control\r\n");
+	    LOG_4("\r\nPress L to test log functions\r\n");
+	    LOG_4("\r\nPress T to test circular buffer \r\n");
+	    LOG_4("\r\nPress E to check circular buffer echo function\r\n");
+	    LOG_4("\r\nPress P to profile \r\n");
+	    MENUprinted = 1;
+	}
 }
 
 void Env_Setup(void)
@@ -197,7 +217,7 @@ void Env_Setup(void)
 	COM_Create_Tx(&TXBUFF,25);
 	COM_Create_Rx(&RXBUFF,25);
 
-	TaskToPerform[0] = &Task_NONE;
+	TaskToPerform[0] = &Task_Ask;
 	TaskToPerform[1] = &Task_LED;
 	TaskToPerform[2] = &Task_LOG;
 	TaskToPerform[3] = &Task_TST;
@@ -212,23 +232,17 @@ int main(void)
     led_init();
     Env_Setup();
 
-	// ask user for a command
-    LOG_4("\r\nChoose an operation to perform:\r\n");
-    LOG_4("\r\nPress C to control\r\n");
-    LOG_4("\r\nPress L to test log functions\r\n");
-    LOG_4("\r\nPress T to test circular buffer \r\n");
-    LOG_4("\r\nPress E to check circular buffer echo function\r\n");
-    LOG_4("\r\nPress P to profile \r\n");
-
     while(1)
     {
     //wait for charter string from user
+        TaskToPerform[cammand]();
+
     //check the command given
     	if(!CmdProcessingDone){
+    	   Task_Ask();
            cammand = User_Command(&CmdProcessingDone);
     	}
 
-       TaskToPerform[cammand]();
     }
 	return 0;
 }

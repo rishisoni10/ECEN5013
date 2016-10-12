@@ -168,6 +168,12 @@ void Control_LED(void)
 			LOG_4("\r\nDECREASE BRIGTNESS\r\n");
 			ledFunction = &DecreaseBritness;
 			break;
+		case '\n':
+			LOG_4("\r\nComming out of LED control\r\n");
+			ledFunction = &IncreaseBritness;
+			CmdProcessingDone = 0;
+			MENUprinted = 0;
+			break;
 		default:
 			//LOG_4("\r\nINVALID CAMMAND\r\n");
 			ledFunction = &IncreaseBritness;
