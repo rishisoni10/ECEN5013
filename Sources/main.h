@@ -23,6 +23,7 @@
 #include "data.h"
 #include "profile.h"
 #include "memory.h"
+#include "mcg.h"
 
 #include <stdint.h>
 #include<stdint.h>

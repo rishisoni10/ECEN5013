@@ -157,6 +157,7 @@ void Task_ECO(void)
 				}
 				if(TransferState == 3)						//copied from tx buff complete
 				{
+					LOG_4("\r\nECO\r\n");
 					break;
 					//delete heap memory
 				}
@@ -171,7 +172,7 @@ void Task_PRO(void)
 {
  // profiler code
 	uint8_t i = 0;
-	//pll_init(8000000, LOW_POWER, CRYSTAL,4,24,MCGOUT);
+	pll_init(8000000, LOW_POWER, CRYSTAL,4,24,MCGOUT);
 
 	uint32_t avg_clock_cycles;
 	uint32_t avg_time;
@@ -214,12 +215,17 @@ void Task_Ask(void)
      TransferState = 0;
 
 		// ask user for a command
-	    LOG_4("\r\nChoose an operation to perform:\r\n");
-	    LOG_4("\r\nPress C to control\r\n");
-	    LOG_4("\r\nPress L to test log functions\r\n");
-	    LOG_4("\r\nPress T to test circular buffer \r\n");
-	    LOG_4("\r\nPress E to check circular buffer echo function\r\n");
-	    LOG_4("\r\nPress P to profile \r\n");
+        LOG_4("\r\n");
+	    LOG_4("\r\n ________________________________________________\r\n");
+	    LOG_4("\r\n| Choose an operation to perform:                |\r\n");
+	    LOG_4("\r\n|________________________________________________|\r\n");
+	    LOG_4("\r\n|  Press C to control                            |\r\n");
+	    LOG_4("\r\n|  Press L to test log functions                 |\r\n");
+	    LOG_4("\r\n|  Press T to test circular buffer               | \r\n");
+	    LOG_4("\r\n|  Press E to check circular buffer echo function|\r\n");
+	    LOG_4("\r\n|  Press P to profile                            |\r\n");
+	    LOG_4("\r\n|________________________________________________|\r\n");
+	    LOG_4("\r\n");
 	    MENUprinted = 1;
 	}
 }
