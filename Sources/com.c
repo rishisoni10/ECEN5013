@@ -85,6 +85,12 @@ uint8_t COM_process_command1(uint8_t ch)
 		 case 'A':
 			 result = 6;
 			 break;
+		 case 'C':
+			 result = 7;
+			 break;
+		 case 'D':
+			 result = 8;
+			 break;
 
 	         default:
 	        	 break;
@@ -131,7 +137,8 @@ uint8_t COM_process_command1(uint8_t ch)
 
              if ((c != 'M') && (c != 'S') &&
  	            (c != 'I') && (c != 'F') &&
- 	            (c != 'L') && (c != 'A'))
+ 	            (c != 'L') && (c != 'A')&&
+				(c != 'C') && (c != 'D'))
  	          {
  	             //print error "not valid command"
  	          }

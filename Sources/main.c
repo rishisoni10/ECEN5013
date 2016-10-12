@@ -11,7 +11,7 @@ uint8_t LogRequested =0;
 uint8_t ECOReqested = 0;
 uint8_t MENUprinted = 0;
 UserAction TaskToPerform[6];
-UserAction FuntionToProfile[7];
+UserAction FuntionToProfile[9];
 uint8_t testdone = 0,ECOdone = 0, PROdone = 0;
 uint8_t test = 4;
 uint8_t cammand = 0;
@@ -323,6 +323,64 @@ void Test_maloc(void){
 		stop_profiler();
 }
 
+void Test_Addc(void){
+	    uint8_t src[DATA_LEN_MAX];
+		uint32_t length ;
+		cirbuffer_t testbuf;
+		CirBuff_init(&testbuf,5,src);
+
+		if(test == 4){
+			length = 1;
+		}
+		else if(test == 3){
+			length = 2;
+		}
+		else if(test == 2){
+			length = 3;
+		}
+		else
+		{
+			length = 6;
+		}
+		while(length--){
+		start_profiler();
+		Circular_Push(&testbuf,'a');
+		stop_profiler();
+		}
+}
+
+
+
+void Test_Delc(void){
+	    uint8_t src[DATA_LEN_MAX];
+		uint32_t length = 5 ;
+		uint8_t* data;
+		cirbuffer_t testbuf;
+		CirBuff_init(&testbuf,5,src);
+		while(length--){
+				Circular_Push(&testbuf,'a');
+				}
+
+		if(test == 4){
+			length = 1;
+		}
+		else if(test == 3){
+			length = 2;
+		}
+		else if(test == 2){
+			length = 3;
+		}
+		else
+		{
+			length = 6;
+		}
+		while(length--){
+		start_profiler();
+		Circular_Pop(&testbuf,&data);
+		stop_profiler();
+		}
+}
+
 void Test_None(void){
 
 }
@@ -336,6 +394,8 @@ void test_setup(void){
 	FuntionToProfile[4] = &Test_ftoa;
 	FuntionToProfile[5] = &Test_log1;
 	FuntionToProfile[6] = &Test_maloc;
+	FuntionToProfile[7] = &Test_Addc;
+	FuntionToProfile[8] = &Test_Delc;
 
 }
 
@@ -419,8 +479,42 @@ void printinfo(uint8_t cmd, uint8_t test){
 			{
 				LOG_4("\r\nMalloc a memory of size  5000\r\n");
 			}
-
 		}
+	else if(cmd == 7)
+			{
+				if(test == 4){
+					LOG_4("\r\nadd FIVE element to buffer of size 5\r\n");
+				}
+				else if(test == 3){
+					LOG_4("\r\nadd FOUR element to buffer of size 5\r\n");
+				}
+				else if(test == 2){
+					LOG_4("\r\nadd THREE element to buffer of size 5\r\n");
+				}
+				else
+				{
+					LOG_4("\r\nadd ONE element to buffer of size 5\r\n");
+				}
+
+			}
+	else if(cmd == 8)
+			{
+		if(test == 4){
+				LOG_4("\r\nremove FIVE element to buffer of size 5\r\n");
+			}
+			else if(test == 3){
+				LOG_4("\r\nremove THREE element to buffer of size 5\r\n");
+			}
+			else if(test == 2){
+				LOG_4("\r\nremove TWO element to buffer of size 5\r\n");
+			}
+			else
+			{
+				LOG_4("\r\nremove ONE element to buffer of size 5\r\n");
+			}
+
+
+			}
 }
 void Task_PRO(void)
 {
@@ -445,6 +539,8 @@ void Task_PRO(void)
 	  LOG_4("\r\n|  Press F to profile ftoa                       |\r\n");
 	  LOG_4("\r\n|  Press L to profile log1                       |\r\n");
 	  LOG_4("\r\n|  Press A to profile malloc                     |\r\n");
+	  LOG_4("\r\n|  Press C to profile addcirbuf                  |\r\n");
+	  LOG_4("\r\n|  Press D to profile delcirbuf                  |\r\n");
 	  LOG_4("\r\n|________________________________________________|\r\n");
 		}
 
