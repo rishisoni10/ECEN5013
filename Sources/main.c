@@ -5,12 +5,17 @@ typedef void(*UserAction)(void);
 
 static int i = 0;
 uint8_t TransferState = 0,CmdProcessingDone = 0;
+uint8_t CmdDone = 0;
 uint8_t LEDControlRequested = 0;
 uint8_t LogRequested =0;
 uint8_t ECOReqested = 0;
 uint8_t MENUprinted = 0;
 UserAction TaskToPerform[6];
-uint8_t testdone = 0,ECOdone = 0;
+UserAction FuntionToProfile[7];
+uint8_t testdone = 0,ECOdone = 0, PROdone = 0;
+uint8_t test = 4;
+uint8_t cammand = 0;
+uint8_t cammand1 = 0;
 
 void Task_LED(void)
 {
@@ -168,39 +173,275 @@ void Task_ECO(void)
 		CmdProcessingDone = 0;
 }
 
+void Test_memmov(void){
+	uint8_t src[DATA_LEN_MAX];
+	uint32_t length;
+	uint8_t dst[DATA_LEN_MAX];
+
+	if(test == 4){
+		length = 10;
+	}
+	else if(test == 3){
+		length = 100;
+	}
+	else if(test == 2){
+		length = 1000;
+	}
+	else
+	{
+		length = 5000;
+	}
+
+	start_profiler();
+	my_memmove(src,dst,length);
+	stop_profiler();
+
+}
+
+void Test_memset(void){
+
+	uint8_t src[DATA_LEN_MAX];
+	uint32_t length;
+
+	if(test == 4){
+		length = 10;
+		LOG_4("\r\nFor 10 bytes\r\n");
+	}
+	else if(test == 3){
+		length = 100;
+		LOG_4("\r\nFor 100 bytes\r\n");
+	}
+	else if(test == 2){
+		length = 1000;
+		LOG_4("\r\nFor 1000 bytes\r\n");
+	}
+	else
+	{
+		length = 5000;
+		LOG_4("\r\nFor 5000 bytes\r\n");
+	}
+
+	start_profiler();
+	my_memzero(src,length);
+	stop_profiler();
+
+
+}
+
+void Test_itoa(void){
+
+	uint8_t src[DATA_LEN_MAX];
+	uint8_t* str;
+	uint32_t data;
+	str = src;
+
+	   if(test == 4){
+		   data = 10;
+		}
+		else if(test == 3){
+			data = 100;
+		}
+		else if(test == 2){
+			data = 1000;
+		}
+		else
+		{
+			data = 5000;
+		}
+
+		start_profiler();
+		itoa(str, data, 10);
+		stop_profiler();
+}
+
+void Test_ftoa(void){
+
+	uint8_t src[DATA_LEN_MAX];
+	uint8_t* str;
+	float data;
+	str = src;
+
+	if(test == 4){
+		data = 123.23;
+		}
+		else if(test == 3){
+			data = 1002.3;
+		}
+		else if(test == 2){
+			data = 1023.345;
+		}
+		else
+		{
+			data = 3243.345;
+		}
+
+		start_profiler();
+		str = ftoa( data);
+		stop_profiler();
+}
+
+void Test_log1(void){
+	uint8_t src[DATA_LEN_MAX];
+	uint32_t length;
+
+	if(test == 4){
+		length = 10;
+	}
+	else if(test == 3){
+		length = 100;
+	}
+	else if(test == 2){
+		length = 1000;
+	}
+	else
+	{
+		length = 5000;
+	}
+
+	start_profiler();
+	LOG_0(src,length);
+	stop_profiler();
+
+}
+
+void Test_maloc(void){
+
+}
+
+void Test_None(void){
+
+}
+
+void test_setup(void){
+
+	//FuntionToProfile[0] = &Test_None;
+	FuntionToProfile[1] = &Test_memmov;
+	FuntionToProfile[2] = &Test_memset;
+	FuntionToProfile[3] = &Test_itoa;
+	FuntionToProfile[4] = &Test_ftoa;
+	FuntionToProfile[5] = &Test_log1;
+	FuntionToProfile[6] = &Test_maloc;
+
+}
+
+void printinfo(uint8_t cmd, uint8_t test){
+	if(cmd == 1 || cmd == 2){
+		if(test == 4){
+			LOG_4("\r\nFor 10 bytes\r\n");
+		}
+		else if(test == 3){
+			LOG_4("\r\nFor 100 bytes\r\n");
+		}
+		else if(test == 2){
+			LOG_4("\r\nFor 1000 bytes\r\n");
+		}
+		else
+		{
+			LOG_4("\r\nFor 5000 bytes\r\n");
+		}
+	}
+	else if(cmd == 2)
+	{
+		if(test == 4){
+			LOG_4("\r\nFor integer data as 123.23\r\n");
+		}
+		else if(test == 3){
+			LOG_4("\r\nFor integer data as 1002.3\r\n");
+		}
+		else if(test == 2){
+			LOG_4("\r\nFor integer data as 1023.345\r\n");
+		}
+		else
+		{
+			LOG_4("\r\nFor integer data as 3243.345\r\n");
+		}
+
+	}
+	else if(cmd == 3)
+	{
+		if(test == 4){
+			LOG_4("\r\nFor float data as 10\r\n");
+		}
+		else if(test == 3){
+			LOG_4("\r\nFor float data as 100\r\n");
+		}
+		else if(test == 2){
+			LOG_4("\r\nFor float data as 1000\r\n");
+		}
+		else
+		{
+			LOG_4("\r\nFor float data as 5000\r\n");
+		}
+
+	}
+}
 void Task_PRO(void)
 {
  // profiler code
 	uint8_t i = 0;
-	pll_init(8000000, LOW_POWER, CRYSTAL,4,24,MCGOUT);
-
-	uint32_t avg_clock_cycles;
-	uint32_t avg_time;
+	uint32_t avg_clock_cycle=0;
+	uint32_t avg_time=0;
 	uint32_t sum1=0, sum2=0;
 	float a [10];
 	double b[10];
 
+    test_setup();
 
-	while(i<10)
-	{
-		uint8_t src[DATA_LEN_MAX];
-		uint32_t length;
-		length = DATA_LEN_MAX;
-		uint8_t dst[DATA_LEN_MAX];
+  if(PROdone == 0){
 
-		start_profiler();
-		my_memmove(dst, src, length);
-		stop_profiler();
+	if(!CmdDone){
+	  LOG_4("\r\n  Choose a function to profile from the list below:");
+	  LOG_4("\r\n|________________________________________________|\r\n");
+	  LOG_4("\r\n|  Press M to profile memmov                     |\r\n");
+	  LOG_4("\r\n|  Press S to profile memset                     |\r\n");
+	  LOG_4("\r\n|  Press I to profile itoa                       | \r\n");
+	  LOG_4("\r\n|  Press F to profile ftoa                       |\r\n");
+	  LOG_4("\r\n|  Press L to profile log1                       |\r\n");
+	  LOG_4("\r\n|  Press A to profile maloc                      |\r\n");
+	  LOG_4("\r\n|________________________________________________|\r\n");
+		}
 
-		a[i] = count*480 + TPM0_CNT;
-		sum1 += a[i];
-		b[i] = (a[i] / 48000000.00)*1000000.00;
-		sum2 += b[i];
-
-		i++;
+	if(!CmdDone){
+	  cammand1 = User_Command1(&CmdDone);
 	}
-		avg_clock_cycles = sum1/(10*i);
-		avg_time = sum2/(i*10);
+	else{
+       while(test){
+
+    	     avg_clock_cycle=0;
+    	   	 avg_time=0;
+    	   	 sum1=0;
+    	   	 sum2=0;
+    	   	 i = 0;
+
+    	   	 printinfo(cammand1,test);
+
+			while(i<10)
+			{
+				FuntionToProfile[cammand1]();
+
+				a[i] = count*40 + TPM1_CNT;
+				sum1 += a[i];
+				b[i] = (a[i] / 4);
+				sum2 += b[i];
+
+				i++;
+			}
+			    avg_clock_cycle = sum1*12/(i*10); // multiply by 12 as the core is 12 times faster than the timer
+				avg_time = sum2/(i*10);
+
+				LOG_2("\r\nAverage number of CPU cycles :",32,avg_clock_cycle);
+				LOG_2("\r\nAverage time take:",20,avg_time);
+				LOG_4(" MicroSecond \r\n");
+				test--;
+          }
+       PROdone = 1;
+	  }
+  }
+  else{
+
+	MENUprinted = 0;
+	CmdProcessingDone = 0;
+  }
 }
 
 void Task_Ask(void)
@@ -213,6 +454,7 @@ void Task_Ask(void)
 	 testdone = 0;
 	 ECOdone = 0;
      TransferState = 0;
+     PROdone = 0;
 
 		// ask user for a command
         LOG_4("\r\n");
@@ -246,7 +488,6 @@ void Env_Setup(void)
 
 int main(void)
 {
-    uint8_t cammand = 0;
 	initialize_UART(BAUD_RATE);
     led_init();
     Env_Setup();

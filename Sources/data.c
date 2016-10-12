@@ -32,6 +32,62 @@ long	L;
 float	F;
 }	LF_t;
 
+int8_t itoa(int8_t *str, int32_t data, int32_t base)
+{
+	int8_t* str1 = str;
+	int isNeg = 0;
+	if (data < 0)
+	{
+		isNeg = 1;
+		data = -data;
+	}
+
+	if (data == 0)
+	{
+		*str++ = '\0';
+		return 1;
+	}
+
+	int length = 0;
+	while (data != 0)
+	{
+		int8_t reminder = data% base;
+		data = data / base;
+		if (reminder > 9)
+		{
+			*str++ = (reminder - 10) + 'a';
+		}
+		else
+		{
+			*str++ = reminder + '0';
+		}
+		length++;
+	}
+	if (isNeg)
+	{
+		*str++ = '-';
+		length++;
+	}
+	*str++ = '\0'; //End of character
+
+	int8_t* src = str1;
+
+	int index = 0;
+	uint8_t temp;
+	while (index<length / 2)
+	{
+		temp = *(src + index);
+		*(src + index) = *(src + length - index - 1);
+		*(src + length - index - 1) = temp;
+		index++;
+	}
+	if (index == (length/2))
+		return 1;
+	else
+		return 0;
+}
+
+
 char *ftoa(float f)
 {
 	long mantissa, int_part, frac_part;
@@ -108,95 +164,3 @@ char *ftoa(float f)
 }
 
 
-int8_t itoa(int8_t *str, int32_t data, int32_t base)
-{
-	int8_t* str1 = str;
-	int isNeg = 0;
-	if (data < 0)
-	{
-		isNeg = 1;
-		data = -data;
-	}
-
-	if (data == 0)
-	{
-		*str++ = '\0';
-		return 1;
-	}
-
-	int length = 0;
-	while (data != 0)
-	{
-		int8_t reminder = data% base;
-		data = data / base;
-		if (reminder > 9)
-		{
-			*str++ = (reminder - 10) + 'a';
-		}
-		else
-		{
-			*str++ = reminder + '0';
-		}
-		length++;
-	}
-	if (isNeg)
-	{
-		*str++ = '-';
-		length++;
-	}
-	*str++ = '\0'; //End of character
-
-	int8_t* src = str1;
-
-	int index = 0;
-	uint8_t temp;
-	while (index<length / 2)
-	{
-		temp = *(src + index);
-		*(src + index) = *(src + length - index - 1);
-		*(src + length - index - 1) = temp;
-		index++;
-	}
-	if (index == (length/2))
-		return 1;
-	else
-		return 0;
-}
-
-
-
-
-/*
-
-char* my_itoa(char* str, uint32_t num, uint32_t base)
-{
-    int i = 0;
-    int isNegative = 0;
-
-    /* Handle 0 explicitely, otherwise empty string is printed for 0
-    if (num == 0)
-    {
-        str[i++] = '0';
-        str[i] = '\0';
-        return str;
-    }
-
-    // Process individual digits
-    while (num > 0)
-    {
-        int rem = num % base;
-        str[i++] = (rem > 9)? (rem-10) + 'a' : rem + '0';
-        num = num/base;
-    }
-
-    // If number is negative, append '-'
-    if (isNegative)
-        str[i++] = '-';
-
-    str[i] = '\0'; // Append string terminator
-
-    // Reverse the string
-    reverse(str, i);
-
-    return str;
-}*/

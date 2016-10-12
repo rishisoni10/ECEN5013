@@ -7,56 +7,57 @@
 
 #include "main.h"
 
-uint32_t count = 0;
+volatile uint32_t count = 0;
 
 void start_profiler()
 {
-	// PLL clock select
-	SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
-	SIM_SOPT2 &= ~(SIM_SOPT2_TPMSRC_MASK);
-
-	// Select MCGPLLCLK/2
-	SIM_SOPT2 |= SIM_SOPT2_TPMSRC(1);
+	//Step 1: Clock config
+    MCG_C1 |= MCG_C1_IREFS_MASK | MCG_C1_IRCLKEN_MASK;		// Internal Clock and Enable it(MCGIRCLK)
+    MCG_C2 |= MCG_C2_IRCS_MASK;								// Fast internal clock mode
 
 	// Enable TPM clock
-	SIM_SCGC6 |= SIM_SCGC6_TPM0_MASK;
+	SIM_SCGC6 |= SIM_SCGC6_TPM1_MASK;
+    SIM_SOPT2 |= SIM_SOPT2_TPMSRC(3);						// MCGIRCLK as timer source clock
+    SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK|SIM_SCGC5_PORTD_MASK; // Clock gate enable for Port B and D
 
 	//Nullify the control registers to ensure counter is not running
 
-	TPM0_SC = 0;
-	TPM0_CONF = 0;
+	TPM1_SC = 0;
+	TPM1_CONF = 0;
 
 	//Set prescalar to 1 when counter is disabled
-	TPM0_SC = TPM_SC_PS(0);
+	TPM1_SC = TPM_SC_PS(0);
 
 	//Enable Interrupts for the Timer Overflow
-	TPM0_SC |= TPM_SC_TOIE_MASK;
+	TPM1_SC |= TPM_SC_TOIE_MASK;
 
 	// Setting modulo value to set 10us as the execution timer
-	TPM0_MOD = 480;
+	TPM1_MOD = 40;
 
 	//Enable the TPM COunter
-	TPM0_SC |= TPM_SC_CMOD(1);
+	TPM1_SC |= TPM_SC_CMOD(1);
 
 	//NVIC_ClearPendingIRQ(TPM0_IRQn);
-	NVIC_EnableIRQ(TPM0_IRQn);
+	NVIC_EnableIRQ(TPM1_IRQn);
 	//enable_irq(INT_TPM0 - 16);
+
+	count = 0;
 
 }
 
 void stop_profiler()
 {
-	NVIC_DisableIRQ(TPM0_IRQn);
+	NVIC_DisableIRQ(TPM1_IRQn);
 	//Disabling the counter
-	TPM0_SC = 0;
-	TPM0_CONF = 0;
+	TPM1_SC = 0;
+	TPM1_CONF = 0;
 }
 
-void TPM0_IRQHandler()
+void TPM1_IRQHandler()
 {
-	if(TPM0_SC & TPM_SC_TOF_MASK)
+	if(TPM1_SC & TPM_SC_TOF_MASK)
 	{
-		TPM0_SC |= TPM_SC_TOF_MASK;
+		TPM1_SC |= TPM_SC_TOF_MASK;
 		count++;
 	}
 }

@@ -54,11 +54,44 @@ uint8_t COM_process_command(uint8_t ch)
 		            result = 5;
 	           // }
 	            break;
+
 	         default:
 	        	 break;
 	      }
 	return(result);
 }
+
+uint8_t COM_process_command1(uint8_t ch)
+{
+	uint8_t result = 0;
+	uint8_t rec;
+	switch( ch )
+	      {
+	     case 'M':
+			 result = 1;
+			 break;
+		 case 'S':
+			 result = 2;
+			 break;
+		 case 'I':
+			 result = 3;
+			 break;
+		 case 'F':
+			 result = 4;
+			 break;
+		 case 'L':
+			 result = 5;
+			 break;
+		 case 'A':
+			 result = 6;
+			 break;
+
+	         default:
+	        	 break;
+	      }
+	return(result);
+}
+
 
  void communicate(void)
  {
@@ -87,6 +120,29 @@ uint8_t COM_process_command(uint8_t ch)
 
 	  return(result);
  }
+
+ uint8_t User_Command1(uint8_t* done){
+ 	 uint8_t c;
+ 	 uint8_t result=0;
+ 	 *done = 0;
+ 	    while((!*done))
+ 	    {
+ 	       c = COM_get_first();
+
+             if ((c != 'M') && (c != 'S') &&
+ 	            (c != 'I') && (c != 'F') &&
+ 	            (c != 'L') && (c != 'A'))
+ 	          {
+ 	             //print error "not valid command"
+ 	          }
+ 	      else {
+ 		         result = COM_process_command1(c);
+ 		         *done = 1;
+ 	       }
+ 	    }
+
+ 	  return(result);
+  }
 
 
 void COM_PrintChar_withbuffer(uint8_t* data)
