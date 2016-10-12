@@ -1,49 +1,159 @@
-/*
- * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
-#include "MKL25Z4.h"
-#include "memory.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include "mcg.h"
+#include "main.h"
 
-#define data 		10
+typedef void(*UserAction)(void);
 
-void start_profiler(void);
-void stop_profiler(void);
+static int i = 0;
+uint8_t TransferState = 0,CmdProcessingDone = 0;
+uint8_t LEDControlRequested = 0;
+uint8_t ECOReqested = 0;
+UserAction TaskToPerform[5];
+uint8_t testdone = 0;
 
-volatile uint32_t count = 0;
-
-uint32_t main(void)
+void Task_LED(void)
 {
+	if(!LEDControlRequested){
+    LOG_4("\r\nControl LED through UART\r\n");
+    LOG_4("\r\nPress 'a' to glow previous color\r\n");
+    LOG_4("\r\nPress 'd' to glow next color\r\n");
+    LOG_4("\r\nPress 'w' to increase brightness\r\n");
+    LOG_4("\r\nPress 's' to decrease brightness\r\n");
+	}
+	LEDControlRequested = 1;
+	//code to control LED based on UART input
+	Control_LED();
+}
+
+void Task_LOG(void)
+{
+	LOG_0("\r\nTesting123,Serial print test,no params",40);
+	LOG_1("\r\nThis is an integer number:",28,200,sizeof(200));
+	LOG_1("\r\nThis is an integer number:",28,4096,sizeof(4096));
+	LOG_1("\r\nThis is an integer number:",28,123456,sizeof(123456));
+	LOG_2("\r\nThis is a floating number:",29,1543.321);
+}
+
+void Task_TST(void)
+{
+	 cirbuffer_t testbuff;
+	 uint8_t test[5];
+	 uint8_t result,len=5,data;
+ //module test circular buffer
+	 if(testdone == 0){
+		 LOG_4("\r\nRunning Unit Tests for circular buffer\r\n");
+		 //create a test circular buffer and initialize it:
+
+		 CirBuff_init(&testbuff,5,test);
+
+		 //test addition of data
+		 LOG_4("\r\nTest1: Test addition of a new element \r\n");
+		 result = Circular_Push(&testbuff,'a');
+		 if(result) {
+		 LOG_4("\r\nTestCase 1/6: passed \r\n");
+		 }
+		 else {
+			 LOG_4("\r\nTestCase 1/6: passed \r\n");
+		 }
+
+		 //test that no element is added after the buffer is full
+		 LOG_4("\r\nTest2: Test addition of a new element after buffer is full \r\n");
+		 while(len--){
+		  Circular_Push(&testbuff,'a');
+		 }
+		 result = Circular_Push(&testbuff,'b');
+		 if(result) {
+		 LOG_4("\r\nTestCase 2/6: Failed \r\n");
+		 }
+		 else {
+			 LOG_4("\r\nTestCase 2/6: passed \r\n");
+		 }
+
+		 //test removal of element from the buffer
+		 LOG_4("\r\nTest3: Test removal of an element \r\n");
+		 result = Circular_Pop(&testbuff,&data);
+		 if(result) {
+		 LOG_4("\r\nTestCase 3/6: Passed \r\n");
+		 }
+		 else {
+			 LOG_4("\r\nTestCase 3/6: Failed \r\n");
+		 }
+
+		 //test removal of element from an empty buffer
+		 LOG_4("\r\nTest4: Test removal of an element from empty buffer \r\n");
+		 len = 20;
+		 while(len--){
+			 Circular_Pop(&testbuff,&data);
+		 }
+		 result = Circular_Pop(&testbuff,&data);
+		 if(result) {
+		  LOG_4("\r\nTestCase 4/6: Failed \r\n");
+		 }
+		 else {
+		  LOG_4("\r\nTestCase 4/6: Passed \r\n");
+		 }
+
+		 //test buffer empty function
+		 LOG_4("\r\nTest5: Test buffer empty function \r\n");
+		 result = Is_buffer_Empty(&testbuff);
+		 if(result) {
+		  LOG_4("\r\nTestCase 5/6: Passed \r\n");
+		 }
+		 else {
+		  LOG_4("\r\nTestCase 5/6: Failed \r\n");
+		 }
+
+		 //test buffer full function
+		 LOG_4("\r\nTest6: Test buffer full function \r\n");
+		 len = 6;
+		 while(len--){
+			   Circular_Push(&testbuff,'a');
+			 }
+			 result = Is_buffer_full(&testbuff);
+			 if(result) {
+			  LOG_4("\r\nTestCase 6/6: Passed \r\n");
+			 }
+			 else {
+				 LOG_4("\r\nTestCase 6/6: Failed \r\n");
+			 }
+
+			 testdone = 1;
+	 }
+
+}
+
+void Task_ECO(void)
+{
+	uint8_t read_char,i=0;
+	ECOReqested = 1;
+
+			LOG_4("\r\nEnter a string to echo\r\n");
+			TransferState=0;
+			while(1)									//infinite loop
+			{
+				//receive in RX buff ,loop to copy contents from UART0_D into RX BUFFER
+				if(TransferState == 1)						//incoming data in rx buff complete
+				{
+					i=0;
+					while(i<=10)
+					{
+						Circular_Pop(&RXBUFF,&read_char);	//read from rx buff
+						Circular_Push(&TXBUFF,read_char);	//write to tx buff
+						i++;
+					}
+					TransferState=2;
+					UART0_C2 |= UART0_C2_TIE_MASK;		//enable tx interrupt after copy from rxbuff complete
+				}
+				if(TransferState == 3)						//copied from tx buff complete
+				{
+					break;
+					//delete heap memory
+				}
+			}
+}
+
+void Task_PRO(void)
+{
+ // profiler code
 	uint8_t i = 0;
 	pll_init(8000000, LOW_POWER, CRYSTAL,4,24,MCGOUT);
 
@@ -74,58 +184,51 @@ uint32_t main(void)
 }
 	avg_clock_cycles = sum1/(10*i);
 	avg_time = sum2/(i*10);
+}
 
+void Task_NONE(void)
+{
+	// nothing to do
+}
+
+void Env_Setup(void)
+{
+	//Setup teh tx and rx buffers
+	COM_Create_Tx(&TXBUFF,25);
+	COM_Create_Rx(&RXBUFF,25);
+
+	TaskToPerform[0] = &Task_NONE;
+	TaskToPerform[1] = &Task_LED;
+	TaskToPerform[2] = &Task_LOG;
+	TaskToPerform[3] = &Task_TST;
+	TaskToPerform[4] = &Task_ECO;
+	TaskToPerform[5] = &Task_PRO;
+}
+
+int main(void)
+{
+    uint8_t cammand = 0;
+	uart_init(BAUD_RATE);
+    led_init();
+    Env_Setup();
+
+	// ask user for a command
+    LOG_4("\r\nChoose an operation to perform:\r\n");
+    LOG_4("\r\nPress CLED to control\r\n");
+    LOG_4("\r\nPress LOG to test log functions\r\n");
+    LOG_4("\r\nPress TSTC to test circular buffer \r\n");
+    LOG_4("\r\nPress ECO to check circular buffer echo function\r\n");
+    LOG_4("\r\nPress PROF to profile \r\n");
+
+    while(1)
+    {
+    //wait for charter string from user
+    //check the command given
+    	if(!CmdProcessingDone){
+           cammand = User_Command(&CmdProcessingDone);
+    	}
+
+       TaskToPerform[cammand]();
+    }
 	return 0;
-}
-
-void start_profiler()
-{
-	// PLL clock select
-	SIM_SOPT2 |= SIM_SOPT2_PLLFLLSEL_MASK;
-	SIM_SOPT2 &= ~(SIM_SOPT2_TPMSRC_MASK);
-
-	// Select MCGPLLCLK/2
-	SIM_SOPT2 |= SIM_SOPT2_TPMSRC(1);
-
-	// Enable TPM clock
-	SIM_SCGC6 |= SIM_SCGC6_TPM0_MASK;
-
-	//Nullify the control registers to ensure counter is not running
-
-	TPM0_SC = 0;
-	TPM0_CONF = 0;
-
-	//Set prescalar to 1 when counter is disabled
-	TPM0_SC = TPM_SC_PS(0);
-
-	//Enable Interrupts for the Timer Overflow
-	TPM0_SC |= TPM_SC_TOIE_MASK;
-
-	// Setting modulo value to set 10us as the execution timer
-	TPM0_MOD = 480;
-
-	//Enable the TPM COunter
-	TPM0_SC |= TPM_SC_CMOD(1);
-
-	//NVIC_ClearPendingIRQ(TPM0_IRQn);
-	NVIC_EnableIRQ(TPM0_IRQn);
-	//enable_irq(INT_TPM0 - 16);
-
-}
-
-void stop_profiler()
-{
-	NVIC_DisableIRQ(TPM0_IRQn);
-	//Disabling the counter
-	TPM0_SC = 0;
-	TPM0_CONF = 0;
-}
-
-void TPM0_IRQHandler()
-{
-	if(TPM0_SC & TPM_SC_TOF_MASK)
-	{
-		TPM0_SC |= TPM_SC_TOF_MASK;
-		count++;
-	}
 }
