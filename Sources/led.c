@@ -83,7 +83,7 @@ void IncreaseBritness(ledcolor_e color,float brigtness){
 void DecreaseBritness(ledcolor_e color,float brigtness){
 
 	if(brigtness > 0){
-		brigtness -= 0.01;
+		brigtness -= 0.1;
 	}
 	else{
 		brigtness = 0;
@@ -168,7 +168,7 @@ void Control_LED(void)
 			LOG_4("\r\nDECREASE BRIGTNESS\r\n");
 			ledFunction = &DecreaseBritness;
 			break;
-		case '\n':
+		case 'B':
 			LOG_4("\r\nComming out of LED control\r\n");
 			ledFunction = &IncreaseBritness;
 			CmdProcessingDone = 0;

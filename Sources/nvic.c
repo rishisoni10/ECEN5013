@@ -46,7 +46,7 @@ void UART0_IRQHandler (void)
 		if(rec_length==10 + 1)			//set TransferState after receiving complete string
 		{
 			TransferState=1;
-			LOG_0("\r\nReceive buffer full\r\n",23);
+			LOG_4("\r\n");
 			rec_length=0;
 		}
 		else

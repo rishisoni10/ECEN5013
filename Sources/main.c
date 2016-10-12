@@ -10,16 +10,17 @@ uint8_t LogRequested =0;
 uint8_t ECOReqested = 0;
 uint8_t MENUprinted = 0;
 UserAction TaskToPerform[6];
-uint8_t testdone = 0;
+uint8_t testdone = 0,ECOdone = 0;
 
 void Task_LED(void)
 {
 	if(!LEDControlRequested){
     LOG_4("\r\nControl LED through UART\r\n");
-    LOG_4("\r\nPress 'a' to glow previous color\r\n");
-    LOG_4("\r\nPress 'd' to glow next color\r\n");
-    LOG_4("\r\nPress 'w' to increase brightness\r\n");
-    LOG_4("\r\nPress 's' to decrease brightness\r\n");
+    LOG_4("\r\nPress 'A' to glow previous color\r\n");
+    LOG_4("\r\nPress 'D' to glow next color\r\n");
+    LOG_4("\r\nPress 'W' to increase brightness\r\n");
+    LOG_4("\r\nPress 'S' to decrease brightness\r\n");
+    LOG_4("\r\nPress 'B' to go back to main menu\r\n");
 	}
 	LEDControlRequested = 1;
 	//code to control LED based on UART input
@@ -36,7 +37,10 @@ void Task_LOG(void)
 	LOG_2("\r\nThis is a floating number:",29,1543.321);
 
 	LogRequested = 1;
+
 	}
+	MENUprinted = 0;
+	CmdProcessingDone = 0;
 }
 
 void Task_TST(void)
@@ -124,6 +128,8 @@ void Task_TST(void)
 
 			 testdone = 1;
 	 }
+		MENUprinted = 0;
+		CmdProcessingDone = 0;
 
 }
 
@@ -131,7 +137,7 @@ void Task_ECO(void)
 {
 	uint8_t read_char,i=0;
 	ECOReqested = 1;
-
+	  if(ECOdone == 0){
 			LOG_4("\r\nEnter a string to echo\r\n");
 			TransferState=0;
 			while(1)									//infinite loop
@@ -155,6 +161,10 @@ void Task_ECO(void)
 					//delete heap memory
 				}
 			}
+			ECOdone = 1;
+	  }
+		MENUprinted = 0;
+		CmdProcessingDone = 0;
 }
 
 void Task_PRO(void)
@@ -171,25 +181,25 @@ void Task_PRO(void)
 
 
 	while(i<10)
-{
-	uint8_t src[DATA_LEN_MAX];
-	uint32_t length;
-	length = DATA_LEN_MAX;
-	uint8_t dst[DATA_LEN_MAX];
+	{
+		uint8_t src[DATA_LEN_MAX];
+		uint32_t length;
+		length = DATA_LEN_MAX;
+		uint8_t dst[DATA_LEN_MAX];
 
-	start_profiler();
-	my_memmove(dst, src, length);
-	stop_profiler();
+		start_profiler();
+		my_memmove(dst, src, length);
+		stop_profiler();
 
-	a[i] = count*480 + TPM0_CNT;
-	sum1 += a[i];
-	b[i] = (a[i] / 48000000.00)*1000000.00;
-	sum2 += b[i];
+		a[i] = count*480 + TPM0_CNT;
+		sum1 += a[i];
+		b[i] = (a[i] / 48000000.00)*1000000.00;
+		sum2 += b[i];
 
-	i++;
-}
-	avg_clock_cycles = sum1/(10*i);
-	avg_time = sum2/(i*10);
+		i++;
+	}
+		avg_clock_cycles = sum1/(10*i);
+		avg_time = sum2/(i*10);
 }
 
 void Task_Ask(void)
@@ -199,6 +209,9 @@ void Task_Ask(void)
 	 LEDControlRequested = 0;
 	 LogRequested =0;
 	 ECOReqested = 0;
+	 testdone = 0;
+	 ECOdone = 0;
+     TransferState = 0;
 
 		// ask user for a command
 	    LOG_4("\r\nChoose an operation to perform:\r\n");
