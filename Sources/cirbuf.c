@@ -89,31 +89,22 @@ uint8_t Is_buffer_full(cirbuffer_t *c)
  ---------------------------------------------------------------------------*/
 void CirBuff_init(cirbuffer_t *c,uint8_t size,uint8_t* buff)
 {
-	c->buff = buff;
+	c->buff = malloc(sizeof(int8_t) * size);
     c->size = size;							 //total size of buffer
     c->head = c->buff;					 //initially head and tail are at buff
     c->tail = c->buff;
     c->count = 0;			   			 //current number of items in buffer
 }
-/*---------------------------------------------------------------------------
- *
- ---------------------------------------------------------------------------*/
-/*
-uint8_t *Allocate(cirbuffer_t *cptr,uint8_t size)
-{
-	cptr.buff = malloc((size)*sizeof(uint8_t));
-	return cptr.buff;
-}
-*/
+
 /*---------------------------------------------------------------------------
  *uint8_t Destroy(cirbuffer_t *cptr)
  *This function destroys or frees up the heap memory assigned to the buffer
  ---------------------------------------------------------------------------*/
-/*uint8_t Destroy(cirbuffer_t *cptr)
+uint8_t Destroy(cirbuffer_t *c)
 {
-	free(cptr->buff);
+	free(c->buff);
 	return 1;
-}*/
+}
 
 
 
