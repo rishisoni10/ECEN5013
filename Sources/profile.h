@@ -8,10 +8,14 @@
 #ifndef SOURCES_PROFILE_H_
 #define SOURCES_PROFILE_H_
 
-#define data 		10
+#include <stdint.h>
+
+#define DATA_LEN_MAX    10
 
 void start_profiler(void);
 void stop_profiler(void);
+
+extern uint32_t count ;
 
 
 #endif /* SOURCES_PROFILE_H_ */

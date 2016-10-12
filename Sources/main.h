@@ -21,6 +21,8 @@
 #include "Project2_settings.h"
 #include "com.h"
 #include "data.h"
+#include "profile.h"
+#include "memory.h"
 
 #include <stdint.h>
 #include<stdint.h>

@@ -5,6 +5,9 @@
  *      Author: Vikhyat
  */
 
+#include "main.h"
+
+uint32_t count = 0;
 
 void start_profiler()
 {

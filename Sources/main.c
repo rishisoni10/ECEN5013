@@ -7,7 +7,7 @@ static int i = 0;
 uint8_t TransferState = 0,CmdProcessingDone = 0;
 uint8_t LEDControlRequested = 0;
 uint8_t ECOReqested = 0;
-UserAction TaskToPerform[5];
+UserAction TaskToPerform[6];
 uint8_t testdone = 0;
 
 void Task_LED(void)
@@ -155,7 +155,7 @@ void Task_PRO(void)
 {
  // profiler code
 	uint8_t i = 0;
-	pll_init(8000000, LOW_POWER, CRYSTAL,4,24,MCGOUT);
+	//pll_init(8000000, LOW_POWER, CRYSTAL,4,24,MCGOUT);
 
 	uint32_t avg_clock_cycles;
 	uint32_t avg_time;
@@ -166,10 +166,10 @@ void Task_PRO(void)
 
 	while(i<10)
 {
-	uint8_t src[data];
+	uint8_t src[DATA_LEN_MAX];
 	uint32_t length;
-	length = data;
-	uint8_t dst[data];
+	length = DATA_LEN_MAX;
+	uint8_t dst[DATA_LEN_MAX];
 
 	start_profiler();
 	my_memmove(dst, src, length);
@@ -214,11 +214,11 @@ int main(void)
 
 	// ask user for a command
     LOG_4("\r\nChoose an operation to perform:\r\n");
-    LOG_4("\r\nPress CLED to control\r\n");
-    LOG_4("\r\nPress LOG to test log functions\r\n");
-    LOG_4("\r\nPress TSTC to test circular buffer \r\n");
-    LOG_4("\r\nPress ECO to check circular buffer echo function\r\n");
-    LOG_4("\r\nPress PROF to profile \r\n");
+    LOG_4("\r\nPress C to control\r\n");
+    LOG_4("\r\nPress L to test log functions\r\n");
+    LOG_4("\r\nPress T to test circular buffer \r\n");
+    LOG_4("\r\nPress E to check circular buffer echo function\r\n");
+    LOG_4("\r\nPress P to profile \r\n");
 
     while(1)
     {
