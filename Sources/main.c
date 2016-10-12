@@ -301,7 +301,26 @@ void Test_log1(void){
 }
 
 void Test_maloc(void){
+	    uint8_t src[DATA_LEN_MAX];
+		uint32_t length;
+		cirbuffer_t testbuf;
 
+		if(test == 4){
+			length = 10;
+		}
+		else if(test == 3){
+			length = 100;
+		}
+		else if(test == 2){
+			length = 1000;
+		}
+		else
+		{
+			length = 5000;
+		}
+		start_profiler();
+		CirBuff_init(&testbuf,length,src);
+		stop_profiler();
 }
 
 void Test_None(void){
@@ -368,8 +387,40 @@ void printinfo(uint8_t cmd, uint8_t test){
 		{
 			LOG_4("\r\nFor integer data as 5000\r\n");
 		}
-
 	}
+	else if(cmd == 5)
+	{
+		if(test == 4){
+			LOG_4("\r\nFor Logging a 10 byte string\r\n");
+		}
+		else if(test == 3){
+			LOG_4("\r\nFor Logging a 100 byte string\r\n");
+		}
+		else if(test == 2){
+			LOG_4("\r\nFor Logging a 1000 byte string\r\n");
+		}
+		else
+		{
+			LOG_4("\r\nFor Logging a 5000 byte string\r\n");
+		}
+	}
+	else if(cmd == 6)
+		{
+			if(test == 4){
+				LOG_4("\r\nMalloc a memory of size  10\r\n");
+			}
+			else if(test == 3){
+				LOG_4("\r\nMalloc a memory of size  100\r\n");
+			}
+			else if(test == 2){
+				LOG_4("\r\nMalloc a memory of size  1000\r\n");
+			}
+			else
+			{
+				LOG_4("\r\nMalloc a memory of size  5000\r\n");
+			}
+
+		}
 }
 void Task_PRO(void)
 {
@@ -393,7 +444,7 @@ void Task_PRO(void)
 	  LOG_4("\r\n|  Press I to profile itoa                       | \r\n");
 	  LOG_4("\r\n|  Press F to profile ftoa                       |\r\n");
 	  LOG_4("\r\n|  Press L to profile log1                       |\r\n");
-	  LOG_4("\r\n|  Press A to profile maloc                      |\r\n");
+	  LOG_4("\r\n|  Press A to profile malloc                     |\r\n");
 	  LOG_4("\r\n|________________________________________________|\r\n");
 		}
 
