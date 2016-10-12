@@ -19,8 +19,7 @@
 #define TXREG UART0->D                        // Transmit Data Register
 #define TRMT (UART0->S1 & UARTLP_S1_TC_MASK)   // Transmit Shift Register Empty
 
-void uart_init(uint32_t baud);
-void UART0_IRQHandler (void);
+void initialize_UART(uint32_t baud);
 void UART_print_string_noBuffer(const char* );
 void UART_print_charlen_no_buffer(uint8_t*, uint32_t  );
 

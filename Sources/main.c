@@ -208,7 +208,7 @@ void Env_Setup(void)
 int main(void)
 {
     uint8_t cammand = 0;
-	uart_init(BAUD_RATE);
+	initialize_UART(BAUD_RATE);
     led_init();
     Env_Setup();
 

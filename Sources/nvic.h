@@ -10,7 +10,7 @@
 
 #include<stdint.h>
 
-#define ARM_INTERRUPT_LEVEL_BITS          2
+#define INT_BITS    2
 
 #define EnableInterrupts __asm(" CPSIE i");
 #define DisableInterrupts __asm(" CPSID i");
@@ -21,7 +21,7 @@ extern uint8_t LED_Control_Flag;
 
 void enable_irq (int);
 void disable_irq (int);
-void set_irq_priority (int, int);
+void UART0_IRQHandler (void);
 
 
 #endif /* INCLUDES_NVIC_H_ */
