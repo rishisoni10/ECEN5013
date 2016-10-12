@@ -205,20 +205,16 @@ void Test_memset(void){
 
 	if(test == 4){
 		length = 10;
-		LOG_4("\r\nFor 10 bytes\r\n");
 	}
 	else if(test == 3){
 		length = 100;
-		LOG_4("\r\nFor 100 bytes\r\n");
 	}
 	else if(test == 2){
 		length = 1000;
-		LOG_4("\r\nFor 1000 bytes\r\n");
 	}
 	else
 	{
 		length = 5000;
-		LOG_4("\r\nFor 5000 bytes\r\n");
 	}
 
 	start_profiler();
@@ -340,37 +336,37 @@ void printinfo(uint8_t cmd, uint8_t test){
 			LOG_4("\r\nFor 5000 bytes\r\n");
 		}
 	}
-	else if(cmd == 2)
+	else if(cmd == 4)
 	{
 		if(test == 4){
-			LOG_4("\r\nFor integer data as 123.23\r\n");
+			LOG_4("\r\nFor float data as 123.23\r\n");
 		}
 		else if(test == 3){
-			LOG_4("\r\nFor integer data as 1002.3\r\n");
+			LOG_4("\r\nFor float data as 1002.3\r\n");
 		}
 		else if(test == 2){
-			LOG_4("\r\nFor integer data as 1023.345\r\n");
+			LOG_4("\r\nFor float data as 1023.345\r\n");
 		}
 		else
 		{
-			LOG_4("\r\nFor integer data as 3243.345\r\n");
+			LOG_4("\r\nFor float data as 3243.345\r\n");
 		}
 
 	}
-	else if(cmd == 3)
+	else if(cmd == 4)
 	{
 		if(test == 4){
-			LOG_4("\r\nFor float data as 10\r\n");
+			LOG_4("\r\nFor integer data as 10\r\n");
 		}
 		else if(test == 3){
-			LOG_4("\r\nFor float data as 100\r\n");
+			LOG_4("\r\nFor integer data as 100\r\n");
 		}
 		else if(test == 2){
-			LOG_4("\r\nFor float data as 1000\r\n");
+			LOG_4("\r\nFor integer data as 1000\r\n");
 		}
 		else
 		{
-			LOG_4("\r\nFor float data as 5000\r\n");
+			LOG_4("\r\nFor integer data as 5000\r\n");
 		}
 
 	}
@@ -435,6 +431,8 @@ void Task_PRO(void)
 				test--;
           }
        PROdone = 1;
+       CmdDone = 0;
+       test =4;
 	  }
   }
   else{
@@ -455,7 +453,6 @@ void Task_Ask(void)
 	 ECOdone = 0;
      TransferState = 0;
      PROdone = 0;
-
 		// ask user for a command
         LOG_4("\r\n");
 	    LOG_4("\r\n ________________________________________________\r\n");
