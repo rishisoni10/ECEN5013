@@ -31,36 +31,46 @@ void spi_init()
 }
 
 
-void spi_tx_byte(uint8_t data, uint32_t length)
+uint8_t spi_tx_byte(uint8_t *data, uint32_t length)
 {
 	while(length--)
 	{
+		GPIOC_PSOR = 0;				//select the slave device
 		//if buffer empty, write byte(char)
-		if(SPI0_S & SPI_S_SPTEF_MASK)
+		if(SPI0_S & SPI_S_SPTEF_MASK) 				//if SPTEF==1
 		{
-			SPI0_D = data;
+			SPI0_D = *data;
+			data++;
 		}
 
 		//if buffer not empty but more data left to transmit
-		if(!(SPI0_S & SPI_S_SPTEF_MASK))
-		{
+		//else if(!(SPI0_S & SPI_S_SPTEF_MASK))
+		//{
 			//clears the data register for more data transmission
-			spi_flush();
-		}
+		//	spi_flush();
+		//}
 	}
+	GPIOC_PSOR |= PORTC_GPIO_SET;		//deselect slave device
+	return 0;
 }
 
 
-<return_type> spi_rx_byte (uint8_t *data, uint32_t length, <parameters>)
+uint8_t spi_rx_byte (uint8_t *data, uint32_t length)
 {
 	while(length--)
 
 	{
+		GPIOC_PSOR = 0;					//select the slave device
 		//if data buffer is full, data can be read
-		if(SPI0_S & SPI_S_SPRF_MASK)
+		if(SPI0_S & SPI_S_SPRF_MASK)		//SPRF==1
+		{
 			*data = SPI0_D;
-	}
+			data++;
+		}
 
+	}
+	GPIOC_PSOR |= PORTC_GPIO_SET;
+	return 0;
 }
 
 

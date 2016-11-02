@@ -8,6 +8,6 @@
 #ifndef INCLUDES_SPI_H_
 #define INCLUDES_SPI_H_
 
-void spi_init(void);
+uint8_t spi_init(void);
 
 #endif /* INCLUDES_SPI_H_ */
