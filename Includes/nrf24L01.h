@@ -11,6 +11,7 @@
 #include <stdint.h>
 
 #define __IO volatile
+#define   __I     volatile const
 
 //nrf24L01 register layout typedef
 typedef struct {
