@@ -159,7 +159,7 @@ typedef struct {
 #define NORDIC_RF_PWR_12dBm_MASK			(0x02)	//-12dBm RF output power in TX mode
 #define NORDIC_RF_PWR_6dBm_MASK				(0x04)	//-6dBm RF output power in TX mode
 #define NORDIC_RF_PWR_0dBm_MASK				(0x06)	//0dBm RF output power in TX mode
-#define NORDIC_LNA_HCURR_MASK				(0x01)	//Setup LNA gain
+#define NORDIC_LNA_HCURR_MASK				(0x01)	//Setup LNA gain.
 
 /*STATUS bit fields */
 #define NORDIC_RX_DR_MASK					(0x40) 	//Data ready RX FIFO interrupt
