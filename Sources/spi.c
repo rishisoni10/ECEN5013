@@ -2,7 +2,8 @@
  * spi.c
  *
  *  Created on: Oct 30, 2016
- *      Author: Rishi
+ *      Author: Rishi Soni
+ *      Description: SPI driver for FRDM-KL25z
  */
 
 #define SPI0_C1_MASK				01010100
@@ -33,22 +34,23 @@ void spi_init()
 
 uint8_t spi_tx_byte(uint8_t *data, uint32_t length)
 {
+	volatile uint8_t clear_reg;
 	while(length--)
 	{
 		GPIOC_PSOR = 0;				//select the slave device
 		//if buffer empty, write byte(char)
+		while(!(SPI0_S & SPI_S_SPTEF_MASK))	{}	//wait for tx to get ready
 		if(SPI0_S & SPI_S_SPTEF_MASK) 				//if SPTEF==1
 		{
 			SPI0_D = *data;
 			data++;
 		}
 
-		//if buffer not empty but more data left to transmit
-		//else if(!(SPI0_S & SPI_S_SPTEF_MASK))
-		//{
-			//clears the data register for more data transmission
-		//	spi_flush();
-		//}
+		while (!(SPI0_S & SPI_S_SPRF_MASK))	{}	//wait until tx is complete
+		if(SPI0_S & SPI_S_SPRF_MASK)
+		{
+			clear_reg = SPI0_D;			//clear SPRF
+		}
 	}
 	GPIOC_PSOR |= PORTC_GPIO_SET;		//deselect slave device
 	return 0;
@@ -57,10 +59,11 @@ uint8_t spi_tx_byte(uint8_t *data, uint32_t length)
 
 uint8_t spi_rx_byte (uint8_t *data, uint32_t length)
 {
+	volatile uint8_t clear_reg;
 	while(length--)
-
 	{
-		GPIOC_PSOR = 0;					//select the slave device
+		GPIOC_PSOR = 0;							//select the slave device
+		while(!(SPI0_S & SPI_S_SPRF_MASK))	{}	//wait for rx to get ready
 		//if data buffer is full, data can be read
 		if(SPI0_S & SPI_S_SPRF_MASK)		//SPRF==1
 		{
