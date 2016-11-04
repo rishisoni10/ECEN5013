@@ -35,12 +35,12 @@ static int i = 0;
 int main(void)
 {
 
-    /* Write your code here */
+	spi_init();
 
-    /* This for loop should be replaced. By default this loop allows a single stepping. */
-    for (;;) {
-        i++;
-    }
+	uint8_t data = 0xA;
+
+	uint8_t a = spi_tx_byte(&data,2);
+
     /* Never leave main */
     return 0;
 }

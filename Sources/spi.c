@@ -5,6 +5,8 @@
  *      Author: Rishi Soni
  *      Description: SPI driver for FRDM-KL25z
  */
+#include "MKL25Z4.h"
+
 
 #define SPI0_C1_MASK				01010100
 //#define SPI0_C2_MASK				00010000
@@ -14,7 +16,7 @@
 #define PORTC_GPIO_CS_MASK			0x100
 #define PORTC_GPIO_OUT_MASK			0x01
 #define PORTC_GPIO_SET				0x01
-#define SPI0_DISABLE_MASK			0x10
+#define SPI0_DISABLE_MASK			0x14
 
 void spi_init()
 {
@@ -25,7 +27,7 @@ void spi_init()
 	GPIOC_PDDR |= PORTC_GPIO_OUT_MASK;	//PTC4 pin set as output
 	GPIOC_PSOR |= PORTC_GPIO_SET;		//set PTC4 pin high
 	SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;   //Clock enable for SPI0
-	SPI0_C1 |= SPI0_DISABLE_MASTER; 	//disable SPI0 and set as master
+	SPI0_C1 |= SPI0_DISABLE_MASK; 		//disable SPI0 and set as master
 	SPI0_BR |= SPI0_BR_MASK;			//set baud rate as
 	//SPI0_C2 |= SPI0_C2_MASK;
 	SPI0_C1 |= SPI0_C1_MASK;			//enable SPI0 and set as master

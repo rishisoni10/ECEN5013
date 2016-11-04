@@ -51,7 +51,7 @@ all: Project_3.elf secondary-outputs
 Project_3.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "MKL25Z128xxx4_flash.ld" -Xlinker --gc-sections -L"D:/Study/Courses/ESE/Project_3/Project_3/Project_Settings/Linker_Files" -Wl,-Map,"Project_3.map" -specs=nano.specs -specs=nosys.specs -o "Project_3.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m0plus -mthumb -O0 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -T "MKL25Z128xxx4_flash.ld" -Xlinker --gc-sections -L"Z:/ESE/Project_3/Project_3/Project_Settings/Linker_Files" -Wl,-Map,"Project_3.map" -specs=nano.specs -specs=nosys.specs -o "Project_3.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 
