@@ -37,9 +37,9 @@ uint8_t nrf_status()
 	uint8_t data = 0;
 	uint8_t dummy = 0xFF;
 	uint8_t command = (R_REGISTER | (REGISTER_MASK & NORDIC_STATUS));			//send R_REGISTER command
-	spi_tx_byte(&command,1);
-	spi_tx_byte(&dummy,1);
-	spi_rx_byte(&data,1);
+	spi_tx_byte(command);
+	spi_tx_byte(dummy);
+	spi_rx_byte(data);
 	return data;
 
 }
@@ -55,7 +55,7 @@ void nrf_receive(uint8_t reg, uint8_t data, uint8_t condition)				//reg: selecte
 		r_w_command = R_REGISTER;
 
 	uint8_t command = (r_w_command | (REGISTER_MASK & reg));
-	spi_tx_byte(&command, 1);
-	spi_tx_byte(&DATA,1);
+	spi_tx_byte(command);
+	spi_tx_byte(DATA);
 	GPIOC_PDOR |= (PORTC4_GPIO_SET) ;			//de-select slave device
 }

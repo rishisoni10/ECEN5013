@@ -36,8 +36,13 @@ int main(void)
 {
 
 	spi_init();
-	uint8_t status = nrf_status();
-    /* Never leave main */
+	uint8_t data = 0;
+		uint8_t dummy = 0xFF;
+		uint8_t command = (R_REGISTER | (REGISTER_MASK & NORDIC_STATUS));			//send R_REGISTER command
+		data = spi_tx_byte(command);
+		data = spi_tx_byte(dummy);
+		//spi_rx_byte(data);
+		//return data;
     return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////

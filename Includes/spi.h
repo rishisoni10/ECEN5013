@@ -10,9 +10,9 @@
 
 void spi_init(void);
 
-uint8_t spi_tx_byte(uint8_t*, uint32_t);
+uint8_t spi_tx_byte(uint8_t);
 
-uint8_t spi_rx_byte (uint8_t*, uint32_t);
+void spi_rx_byte (uint8_t);
 
 
 #endif /* INCLUDES_SPI_H_ */
