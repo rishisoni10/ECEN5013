@@ -13,6 +13,25 @@
 #define __IO volatile
 #define   __I     volatile const
 
+void nrf_init(void);
+void nrf_receive(uint8_t, uint8_t, uint8_t);
+uint8_t nrf_status(void);
+
+//nrf24L01 SPI commands
+#define R_REGISTER					(0x00)		//Read command and status registers. AAAAA =5 bit Register Map Address
+#define W_REGISTER					(0x20) 		//Write command and status registers. AAAAA = 5 bit Register Map Address. Executable in power down or standby modes only.
+#define R_RX_PAYLOAD				(0x61)		//Read RX-payload:1-32 bytes. Read operation always starts at byte 0. Payload is deleted from FIFO after it is read. Used in RX mode.
+#define REGISTER_MASK				(0x1F)
+#define W_TX_PAYLOAD				(0xA0)		//Write TX-payload: 1 – 32 bytes. Write operation always starts at byte 0. Used in TX payload.
+#define FLUSH_TX					(0xE1)		//Flush TX FIFO, used in TX mode
+#define FLUSH_RX					(0xE2)		//Flush RX FIFO, used in RX mode Should not be executed during transmission of acknowledge, that is, acknowledge package will not be completed
+#define REUSE_TX_PL					(0xE3)		//For PTX device.Reuse last transmitted payload. Packets are repeatedly retransmitted as long as CE is high.
+#define R_RX_PL_WID					(0x60)		//Read RX payload width for the top R_RX_PAYLOAD in the RX FIFO
+#define W_ACK_PAYLOAD				(1010_1PPP)	//Write payload to be transmitted together with ACK packet on PIPE PPP (PPP in the range 000 to 101). Write operation starts at byte 0. Used in RX mode.
+#define W_TX_PAYLOAD_NOACK			(0xB0)		//Disable AUTOACK on a specific data packet. Used in TX mode.
+#define NOP							(0xFF)		//No operation. Might be used to read the STATUS register.
+
+
 //nrf24L01 register layout typedef
 typedef struct {
 	__IO uint8_t CONFIG;			//config register, offset: 0x00//
@@ -24,7 +43,7 @@ typedef struct {
 	__IO uint8_t RF_SETUP; 			//RF Setup Register, offset: 0x06
 	__IO uint8_t STATUS;			//Status register, offset: 0x07
 	__I  uint8_t OBSERVE_TX;		//Transmit observe register, offset: 0x08
-	__I  uint8_t CD;				//Carrier Detect, offset: 0x09
+	__I  uint8_t RPD;				//Carrier Detect, offset: 0x09
 	__IO uint8_t RX_ADDR_P0;		//Receive address data pipe 0, offset: 0x0A
 	__IO uint8_t RX_ADDR_P1;		//Receive address data pipe 1, offset: 0x0B
 	__IO uint8_t RX_ADDR_P2;		//Receive address data pipe 2, offset: 0x0C
@@ -44,13 +63,13 @@ typedef struct {
 		 uint8_t RESERVED_2[32];	//RX_PLD
 	__IO uint8_t DYNPD;				//Enable Dyanamic Payload
 	__IO uint8_t FEATURE;			//Feature Register
-} NORDIC_Type, *NORDIC_MemMapPtr;
+} NORDIC_TYPE, *NORDIC_MemMapPtr;
 
 
 // nrf24L01 base addresses
-#define NORDIC_BASE						(0x00)
-#define NORDIC							((NORDIC_TYPE *)NORDIC_BASE)
-#define NORDIC_BASE_PTR					(NORDIC)
+#define NORDIC_BASE							(0x00)
+#define NORDIC								((NORDIC_TYPE *)NORDIC_BASE)
+#define NORDIC_BASE_PTR						(NORDIC)
 
 
 //nrf24L01 - Register accessors
@@ -63,7 +82,7 @@ typedef struct {
 #define NORDIC_RF_SETUP_REG(base)			((base)->RF_SETUP)
 #define NORDIC_STATUS_REG(base)				((base)->STATUS)
 #define NORDIC_OBSERVE_TX_REG(base)			((base)->OBSERVE_TX)
-#define NORDIC_CD_REG(base)					((base)->CD)
+#define NORDIC_RPD_REG(base)				((base)->RPD)
 #define NORDIC_RX_ADDR_P0_REG(base)			((base)->RX_ADDR_P0)
 #define NORDIC_RX_ADDR_P1_REG(base)			((base)->RX_ADDR_P1)
 #define NORDIC_RX_ADDR_P2_REG(base)			((base)->RX_ADDR_P2)
@@ -90,7 +109,7 @@ typedef struct {
 #define NORDIC_MASK_MAX_RT(x)				((uint8_t)(((uint8_t)(x))<<4))	//Mask interrupt caused by MAX_RT
 #define NORDIC_EN_CRC(x)					((uint8_t)(((uint8_t)(x))<<3))	//Enable CRC
 #define NORDIC_CRCO(x)						((uint8_t)(((uint8_t)(x))<<2))	//CRC encoding scheme
-#define NORDIC_PWR_UP(x)					((uint8_t)(((uint8_t)(x))<<1))	//Power modes
+#define NORDIC_PWR_UP(x)					((uint8_t)(((uint8_t)(x))<<1))	//Power modes (1: POWER UP, 0:POWER DOWN)
 #define NORDIC_PRIM_RX(x)					((uint8_t)(((uint8_t)(x))<<0))	//RX/TX control
 
 /*EN_AA bit fields*/
@@ -135,9 +154,9 @@ typedef struct {
 #define NORDIC_ARD_4000us					(1111)	//wait 4000us
 
 //Auto Re-transmit Count bit fields
-#define NORDIC_ARC_1						(0000)	//retransmit disabled
-#define NORDIC_ARC_2						(0001)	//upto 1 retransmit on fail of AA
-#define NORDIC_ARC_3						(0010)	//upto 2 retransmit on fail of AA
+#define NORDIC_ARC_0						(0000)	//retransmit disabled
+#define NORDIC_ARC_1						(0001)	//upto 1 retransmit on fail of AA
+#define NORDIC_ARC_2						(0010)	//upto 2 retransmit on fail of AA
 #define NORDIC_ARC_3						(0011)	//upto 3 retransmit on fail of AA
 #define NORDIC_ARC_4						(0100)	//upto 4 retransmit on fail of AA
 #define NORDIC_ARC_5						(0101)	//upto 5 retransmit on fail of AA
@@ -153,14 +172,14 @@ typedef struct {
 #define NORDIC_ARC_15						(1111)	//upto 15 retransmit on fail of AA
 
 /*RF_SETUP bit fields */
-#define NORDIC_PLL_LOCK_MASK				(0x10)	//Force PLL lock signal
-#define NORDIC_RF_DR_1Mbps_MASK				(0x00)	//1Mbps air data rate
-#define NORDIC_RF_DR_2Mbps_MASK				(0x08)	//2Mbps air data rate
+#define NORDIC_CONT_WAVE_MASK				(0x80)	//Enables continuous carrier transmit when high
+#define NORDIC_RF_DR_LOW_MASK				(0x20)	//Set RF Data Rate to 250kbps
+#define NORDIC_PLL_LOCK_MASK				(0x10)	//Force PLL lock signal. Only used in test
+#define NORDIC_RF_DR_HIGH_MASK				(0x10)	//Select between the high speed data rates
 #define NORDIC_RF_PWR_18dBm_MASK			(0x00)	//-18dBm RF output power in TX mode
 #define NORDIC_RF_PWR_12dBm_MASK			(0x02)	//-12dBm RF output power in TX mode
 #define NORDIC_RF_PWR_6dBm_MASK				(0x04)	//-6dBm RF output power in TX mode
 #define NORDIC_RF_PWR_0dBm_MASK				(0x06)	//0dBm RF output power in TX mode
-#define NORDIC_LNA_HCURR_MASK				(0x01)	//Setup LNA gain.
 
 /*STATUS bit fields */
 #define NORDIC_RX_DR_MASK					(0x40) 	//Data ready RX FIFO interrupt
@@ -174,11 +193,18 @@ typedef struct {
 #define NORDIC_RX_P_NO_4_MASK				(100)	//Data pipe number 4
 #define NORDIC_RX_P_NO_5_MASK				(101)	//Data pipe number 5
 #define NORDIC_RX_P_NO_7_MASK				(111)	//RX FIFO empty
+#define NORDIC_TX_FULL_FLAG_MASK			(0x01)	//TX FIFO status(1:full, 0:number of available locations in TX FIFO)
 
-#define NORDIC_TX_FULL_FLAG_MASK			(0x01)	//TX FIFO status(1:full, 0:available locations in TX FIFO)
+/*RPD bit fields*/
+#define NORDIC_RPD_MASK						(0x01)	//Received Power Detector
 
-/*CD bit fields*/
-#define NORDIC_CD_MASK						(0x01)	//Carrier detect
+/*FIFO_STATUS bit fields*/
+#define NORDIC_FIFO_STATUS_RESERVED			(0x8C)
+#define NORDIC_FIFO_STATUS_TX_REUSE			(0x40)
+#define NORDIC_FIFO_STATUS_TX_FULL			(0x20)
+#define NORDIC_FIFO_STATUS_TX_EMPTY			(0x10)
+#define NORDIC_FIFO_STATUS_RX_FULL			(0x02)
+#define NORDIC_FIFO_STATUS_RX_EMPTY			(0x01)
 
 /*DYNPD bit fields*/
 #define NORDIC_DPL_P5_MASK					(0x20)	//Enable dyn. payload length data pipe 5
@@ -205,7 +231,7 @@ typedef struct {
 #define NORDIC_RF_SETUP						NORDIC_RF_SETUP_REG(NORDIC)
 #define NORDIC_STATUS						NORDIC_STATUS_REG(NORDIC)
 #define NORDIC_OBSERVE_TX					NORDIC_OBSERVE_TX_REG(NORDIC)
-#define NORDIC_CD							NORDIC_CD_REG(NORDIC)
+#define NORDIC_RPD							NORDIC_RPD_REG(NORDIC)
 #define NORDIC_RX_ADDR_P0					NORDIC_RX_ADDR_P0_REG(NORDIC)
 #define NORDIC_RX_ADDR_P1					NORDIC_RX_ADDR_P1_REG(NORDIC)
 #define NORDIC_RX_ADDR_P2					NORDIC_RX_ADDR_P2_REG(NORDIC)

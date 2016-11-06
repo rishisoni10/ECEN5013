@@ -29,18 +29,14 @@
  */
 
 #include "MKL25Z4.h"
-
-static int i = 0;
+#include "nrf24L01.h"
+#include "spi.h"
 
 int main(void)
 {
 
 	spi_init();
-
-	uint8_t data = 0xA;
-
-	uint8_t a = spi_tx_byte(&data,2);
-
+	uint8_t status = nrf_status();
     /* Never leave main */
     return 0;
 }

@@ -5,15 +5,21 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Sources/main.c \
-../Sources/spi.c 
+../Sources/nrf24L01.c \
+../Sources/spi.c \
+../Sources/uart.c 
 
 OBJS += \
 ./Sources/main.o \
-./Sources/spi.o 
+./Sources/nrf24L01.o \
+./Sources/spi.o \
+./Sources/uart.o 
 
 C_DEPS += \
 ./Sources/main.d \
-./Sources/spi.d 
+./Sources/nrf24L01.d \
+./Sources/spi.d \
+./Sources/uart.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
