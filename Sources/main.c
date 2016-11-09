@@ -28,31 +28,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-<<<<<<< Upstream, based on origin/Project_3
-#include "MKL25Z4.h"
-#include "nrf24L01.h"
-#include "spi.h"
-=======
 #include "main.h"
 
 extern uint8_t packet_byte,rx_byte,dma_complete;
->>>>>>> 8d6f30e Integrated all the Project_3 components together
 
 int main(void)
 {
 	uint8_t str[2],byte_length=0,byte_process=0;
 	uint8_t current_length=0,packet_length=0,packet_complete=0;
 
-<<<<<<< Upstream, based on origin/Project_3
-	spi_init();
-	uint8_t data = 0;
-		uint8_t dummy = 0xFF;
-		uint8_t command = (R_REGISTER | (REGISTER_MASK & NORDIC_STATUS));			//send R_REGISTER command
-		data = spi_tx_byte(command);
-		data = spi_tx_byte(dummy);
-		//spi_rx_byte(data);
-		//return data;
-=======
 	uart_init(BAUD_RATE);
 	init_profiler();
 
@@ -132,7 +116,6 @@ int main(void)
 	}
 #endif
 
->>>>>>> 8d6f30e Integrated all the Project_3 components together
     return 0;
 }
 
