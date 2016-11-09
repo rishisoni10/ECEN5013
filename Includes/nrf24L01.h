@@ -16,6 +16,10 @@
 void nrf_init(void);
 void nrf_receive(uint8_t, uint8_t, uint8_t);
 uint8_t nrf_status(void);
+<<<<<<< Upstream, based on origin/Project_3
+=======
+uint8_t proffoz_nrf_status_read(void);
+>>>>>>> 8d6f30e Integrated all the Project_3 components together
 
 //nrf24L01 SPI commands
 #define R_REGISTER					(0x00)		//Read command and status registers. AAAAA =5 bit Register Map Address

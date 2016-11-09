@@ -25,5 +25,9 @@ S_UPPER_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 Sources \
+Sources/HSW \
+Sources/COM \
+Sources/BASE \
+Sources/ASW \
 Project_Settings/Startup_Code \
 

@@ -28,13 +28,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+<<<<<<< Upstream, based on origin/Project_3
 #include "MKL25Z4.h"
 #include "nrf24L01.h"
 #include "spi.h"
+=======
+#include "main.h"
+
+extern uint8_t packet_byte,rx_byte,dma_complete;
+>>>>>>> 8d6f30e Integrated all the Project_3 components together
 
 int main(void)
 {
+	uint8_t str[2],byte_length=0,byte_process=0;
+	uint8_t current_length=0,packet_length=0,packet_complete=0;
 
+<<<<<<< Upstream, based on origin/Project_3
 	spi_init();
 	uint8_t data = 0;
 		uint8_t dummy = 0xFF;
@@ -43,8 +52,87 @@ int main(void)
 		data = spi_tx_byte(dummy);
 		//spi_rx_byte(data);
 		//return data;
+=======
+	uart_init(BAUD_RATE);
+	init_profiler();
+
+#ifdef DMA_test
+	 uint8_t s[500];
+	 uint8_t d[500];
+
+	for(int i=0;i<500;i++)
+		d[i] = 0;
+	for(int i=0;i<500;i++)
+		s[i] = 55;
+
+	 __enable_irq();						//Global interrupt enable
+	 	 	 	 	 	 	 	 	 	    //system - init peripheral
+	dma_init();
+
+	start_time();
+	enable_dma(s,d,500);
+		while(!dma_complete);
+	//my_memmove(s,d,500);
+	//my_memzero(s,500);
+	calculate_time();
+
+	while(1);
+#endif
+
+#ifdef MSG
+	led_init();
+	init_cbuff(&RXBUFF,25);
+	while(1)
+	{
+		if(rx_byte == 1)
+		{
+			//atoi
+					str[byte_length] = packet_byte;				//byte processing for terminal input
+					byte_length++;
+					if(byte_length == 2)
+					{
+						packet_byte = myAtoi(str);
+						byte_process = 1;
+						byte_length = 0;
+						LOG_0("|");
+					}
+
+					if(byte_process == 1)
+					{
+						byte_process = 0;
+						add_cbuff(&RXBUFF,packet_byte);
+
+						current_length ++;
+						if(current_length == 2)					//length byte from the second byte
+						{
+							packet_length = packet_byte;
+							if(packet_length == 0)
+							{
+								current_length = 0;
+								byte_length = 0;
+								LOG_0("\r\npacket_error\r");
+							}
+						}
+
+						if(current_length == packet_length)
+						{
+							packet_complete = 1;
+							current_length = 0;
+							LOG_0("\r\npacket_complete\r");
+						}
+					}
+					UART0_C2 |= UART0_C2_RIE_MASK; 			//Peripheral interrupt enable (RX)
+					rx_byte = 0;
+		}
+
+		if(packet_complete == 1) {
+			decode_packet();
+			packet_complete = 0;
+		}
+	}
+#endif
+
+>>>>>>> 8d6f30e Integrated all the Project_3 components together
     return 0;
 }
-////////////////////////////////////////////////////////////////////////////////
-// EOF
-////////////////////////////////////////////////////////////////////////////////
+
