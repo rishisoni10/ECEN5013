@@ -22,12 +22,12 @@
 #include "HSW/dma.h"
 #include "BASE/profiler.h"
 #include "BASE/memory.h"
-#include "HSW/SPI_Wrapper.h"
+#include "HSW/spi.h"
 #include "ASW/NRF24L01.h"
 
-#define LOG			//to enable uart logging
-#define MSG
-//#define DMA_test
+//#define LOG			//to enable uart logging
+//#define MSG
+#define DMA_test
 //#define BBB
 
 #endif /* INCLUDES_HSW_MAIN_H_ */

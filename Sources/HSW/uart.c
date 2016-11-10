@@ -47,4 +47,3 @@ void uart_init(uint32_t baud)
 	 UART0_C2 |= UART0_C2_RE_MASK ;
 
 }
-

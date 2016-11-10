@@ -128,5 +128,13 @@
 #define NRF_MASK_LNA_HCURR		                      0x01
 #define NRF_LNA_HCURR_OFFSET	   				      (0)
 
+uint8_t nrf_read_register(unsigned char reg);
+void nrf_write_register(unsigned char reg, unsigned char val);
+uint8_t nrf_status_read(void);
+void nrf_flush_tx_fifo();
+void nrf_flush_rx_fifo();
+void nrf_transmit_data();
+void nrf_write_Tx_Payload(unsigned char* val, uint8_t num);
+
 
 #endif /* INCLUDES_NRF24L01_H_ */

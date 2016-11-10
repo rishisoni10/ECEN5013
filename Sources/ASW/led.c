@@ -7,6 +7,8 @@
 
 #include "main.h"
 
+extern uint8_t received_byte,rx_flag,dma_complete;
+
 void led_init(void)
 {
 	//Step 1: Clock config
@@ -41,4 +43,54 @@ void led_init(void)
     //Step 5: Re-enable timers
     TPM2_SC |= TPM_SC_CMOD(1) | TPM_SC_PS(0);
     TPM0_SC |= TPM_SC_CMOD(1) | TPM_SC_PS(0);
+}
+void Handle_msg(void){
+	uint8_t str[2],byte_length=0,byte_process=0;
+	uint8_t current_length=0,packet_length=0,packet_complete=0;
+while(1)
+	{
+		if(rx_flag == 1)
+		{
+					str[byte_length] = received_byte;
+					byte_length++;
+					if(byte_length == 2)
+					{
+						received_byte = myAtoi(str);
+						byte_process = 1;
+						byte_length = 0;
+						LOG_0("-");
+					}
+
+					if(byte_process == 1)
+					{
+						byte_process = 0;
+						add_cbuff(&RXBUFF,received_byte);
+
+						current_length ++;
+						if(current_length == 2)					//length byte from the second byte
+						{
+							packet_length = received_byte;
+							if(packet_length == 0)
+							{
+								current_length = 0;
+								byte_length = 0;
+								LOG_0("\r\npacket has error\r");
+							}
+						}
+
+						if(current_length == packet_length)
+						{
+							packet_complete = 1;
+							current_length = 0;
+						}
+					}
+					UART0_C2 |= UART0_C2_RIE_MASK; 			//Peripheral interrupt enable (RX)
+					rx_flag = 0;
+		}
+
+		if(packet_complete == 1) {
+			decode_packet();
+			packet_complete = 0;
+		}
+	}
 }

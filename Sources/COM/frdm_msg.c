@@ -20,6 +20,7 @@ uint8_t  led_stat = 8;
 uint8_t exit_loop;
 float level = 1;
 
+
 void decode_packet (void)
 {
 		uint8_t chk_msb,chk_lsb,payload;
@@ -84,6 +85,12 @@ void ack_nack_transmit (Cmds packet)
 
 	chk_msb = (uint8_t)(MSG_PACK.checksum >> 8);
 	chk_lsb = MSG_PACK.checksum;
+
+	LOG_0("\r\nResponse:");
+	LOG_1(" ",MSG_PACK.command);
+	LOG_1(" ",MSG_PACK.length);
+	LOG_1(" ",chk_msb);
+	LOG_1(" ",chk_lsb);
 }
 
 /* Calculate addition checksum
@@ -207,33 +214,10 @@ void brightness_control (uint8_t payload)
 
 void blink (Cmds blink_cmd)
 {
-/*
-	if(blink_cmd == BLINK_SLOW)
-	{
-		while(1)
-		{
 
-			if(exit_loop == 1)
-				break;
-		}
-	}
-	else
-	{
-
-	}
-*/
 }
 
 void dance (Cmds dance_cmd)
 {
-	/*
-	if(dance_cmd == DANCE_ON)
-	{
 
-	}
-	else
-	{
-
-	}
-	*/
 }

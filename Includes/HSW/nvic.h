@@ -10,7 +10,6 @@
 
 #include "main.h"
 
-#ifndef BBB
 
 #define ARM_INTERRUPT_LEVEL_BITS          2
 
@@ -21,6 +20,5 @@ void enable_irq (int);
 void disable_irq (int);
 void set_irq_priority (int, int);
 
-#endif
 
 #endif /* INCLUDES_HSW_NVIC_H_ */

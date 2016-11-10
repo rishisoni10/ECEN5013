@@ -40,7 +40,7 @@ void calculate_time(void)
 		clk_time = clk_time + ((MOD_VAL/T1CLK)*overflow_count);
 	}
 
-	char arr1[] = {"\r\nExecution Time (Usec):"};
+	char arr1[] = {"\r\nTime = "};
 	LOG_2(arr1,clk_time);
 /*	char arr2[] = {"\r\nClock cycles:"};
 	LOG_1(arr2,counter_val);*/
@@ -48,4 +48,3 @@ void calculate_time(void)
 	LOG_1(arr3,overflow_count);*/
 	overflow_count = 0;
 }
-

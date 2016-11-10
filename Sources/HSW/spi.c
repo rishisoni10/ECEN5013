@@ -9,7 +9,6 @@
 #include "main.h"
 #include "MKL25Z4.h"
 
-#ifndef BBB
 
 #define WordByteMask(x)    ((0xF000) >> (x*8))
 #define WordByteOffset(x)  (x*8)
@@ -71,28 +70,22 @@ void spi_flush(void)
 
 void spi0_init(void)
 {
-	// Turn on port C
-	SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK;
-	// Turn on SPI0 clock
-	SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK;
+	 //SPI0 module initialization
+	  SIM_SCGC4 |= SIM_SCGC4_SPI0_MASK; // Turn on clock to SPI0 module
+	  SIM_SCGC5 |= SIM_SCGC5_PORTC_MASK; // Turn on clock to Port D module
+	  GPIOC_PSOR |= GPIO_PSOR_PTSO(0x10); // PTD0 = 1 (CS inactive)
+	    GPIOC_PDDR |= GPIO_PDDR_PDD(0x10); // PTD0 pin is GPIO output
+	    PORTC_PCR4 = PORT_PCR_MUX(0x1);    //Set PTD0 to mux 1 [SPI0_PCS0]
+	    PORTC_PCR5 = PORT_PCR_MUX(0x2);    //Set PTD1 to mux 2 [SPI0_SCK]
+	    PORTC_PCR6 = PORT_PCR_MUX(0x2);    //Set PTD2 to mux 2 [SPI0_MOSI]
+	    PORTC_PCR7 = PORT_PCR_MUX(0x2);    //Set PTD3 to mux 2 [SPIO_MISO]
 
-	// Set up ports for SPI0
-	PORTC->PCR[4] |= PORT_PCR_MUX(1); // ss as gpio pin
-	PORTC->PCR[5] |= PORT_PCR_MUX(2);
-	PORTC->PCR[6] |= PORT_PCR_MUX(2);
-	PORTC->PCR[7] |= PORT_PCR_MUX(2);
 
-	// Set port C, pin 8 data direction to output
-	PTC_BASE_PTR->PDDR |= 1<<4;
+	  //SETUP SPI0 PERIPHERAL
 
-	SPI_C1_REG(SPI0) = SPI_C1_SPE_MASK;
-	SPI_C2_REG(SPI0) = 0x00;
-
-	SPI_C1_REG(SPI0) = SPI_C1_MSTR_MASK |SPI_C1_SPE_MASK;
-	// prescaler=1, divisor=4 , 24MHz/4 = 6MHz
-	SPI0_BR = SPI_BR_SPPR(0x03) | SPI_BR_SPR(0x08) ;
+	  SPI0_C1 = SPI_C1_SPE_MASK | SPI_C1_MSTR_MASK; // Enable SPI0 module, master mode //SETS SPI ENABLE AND SPI MASTER BITS
+	  //SPI0_C2 = 0x19;
+	  SPI0_BR = SPI_BR_SPPR(0x03) | SPI_BR_SPR(0x08) ; // BaudRate = BusClock / ((SPPR+1) * 2^(SPR+1)) = 20970000 / ((4+1) * 2^(2+1)) = 524.25 kHz
 }
-
-#endif
 
 
