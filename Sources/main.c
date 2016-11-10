@@ -78,7 +78,7 @@ int main(void)
 						packet_byte = myAtoi(str);
 						byte_process = 1;
 						byte_length = 0;
-						LOG_0("|");
+						LOG_0("-");
 					}
 
 					if(byte_process == 1)
@@ -102,7 +102,6 @@ int main(void)
 						{
 							packet_complete = 1;
 							current_length = 0;
-							LOG_0("\r\npacket_complete\r");
 						}
 					}
 					UART0_C2 |= UART0_C2_RIE_MASK; 			//Peripheral interrupt enable (RX)

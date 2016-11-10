@@ -84,12 +84,6 @@ void ack_nack_transmit (Cmds packet)
 
 	chk_msb = (uint8_t)(MSG_PACK.checksum >> 8);
 	chk_lsb = MSG_PACK.checksum;
-
-	LOG_0("\r\nResponse packet:");
-	LOG_1("\t",MSG_PACK.command);
-	LOG_1("\t",MSG_PACK.length);
-	LOG_1("\t",chk_msb);
-	LOG_1("\t",chk_lsb);
 }
 
 /* Calculate addition checksum
